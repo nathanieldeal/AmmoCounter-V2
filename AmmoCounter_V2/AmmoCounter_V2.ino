@@ -1,5 +1,5 @@
-// AmmoCounter V2 - www.ammocounter.com   
-// Updated 1/21/2017
+// AmmoCounter V2 - www.ammocounter.com
+// Updated 2/16/2017
 // Created by: Nathaniel Deal
 
 // Include Libraries
@@ -7,50 +7,50 @@
 
 //  2 Digit 7 Segment Common Anode 10 Pin Out
 
-    /*        A  B Ca1 Ca2 F
-              |  |  |   |  |
-         ---------    ---------
-         |   A   |    |   A   |
-        F|       |B  F|       |B
-         |---G---|    |---G---|
-        E|       |C  E|       |C
-         |   D   |    |   D   |
-         ---------    ---------
-              |  |  |  |  |
-              C  Dp E  D  G  
-    */
+/*        A  B Ca1 Ca2 F
+          |  |  |   |  |
+     ---------    ---------
+     |   A   |    |   A   |
+    F|       |B  F|       |B
+     |---G---|    |---G---|
+    E|       |C  E|       |C
+     |   D   |    |   D   |
+     ---------    ---------
+          |  |  |  |  |
+          C  Dp E  D  G
+*/
 
 // 7 Segment Pin Connections
-byte A = 12;         // Set A to Pin 12
-byte B = 11;         // Set B to Pin 11
-byte C = 10;         // Set C to Pin 10
-byte D = 3;          // Set D to Pin 3
-byte E = 4;          // Set E to Pin 4
-byte F = 5;          // Set F to Pin 5
-byte G = 6;          // Set G to Pin 6
+const byte A = 12;         // Set A to Pin 12
+const byte B = 11;         // Set B to Pin 11
+const byte C = 10;         // Set C to Pin 10
+const byte D = 3;          // Set D to Pin 3
+const byte E = 4;          // Set E to Pin 4
+const byte F = 5;          // Set F to Pin 5
+const byte G = 6;          // Set G to Pin 6
 
-int pinArray[10]={A,B,C,D,E,F,G}; // Setup array of pins
+int pinArray[7] = {A, B, C, D, E, F, G}; // Setup array of pins
 
-byte pnp1 = 13;  // PNP Transisitor Base Pin 13
-byte pnp2 = 2;   // PNP Transisitor Base Pin 12
+const byte pnp1 = 13;  // PNP Transisitor Base Pin 13
+const byte pnp2 = 2;   // PNP Transisitor Base Pin 12
 
 // Setup array of digits
-byte segmentDigits[11][7] = { 
-  { 0,0,0,0,0,0,1 },  // 0
-  { 1,0,0,1,1,1,1 },  // 1
-  { 0,0,1,0,0,1,0 },  // 2
-  { 0,0,0,0,1,1,0 },  // 3
-  { 1,0,0,1,1,0,0 },  // 4
-  { 0,1,0,0,1,0,0 },  // 5
-  { 0,1,0,0,0,0,0 },  // 6
-  { 0,0,0,1,1,1,1 },  // 7
-  { 0,0,0,0,0,0,0 },  // 8
-  { 0,0,0,1,1,0,0 }   // 9
+const byte segmentDigits[10][7] = {
+  { 0, 0, 0, 0, 0, 0, 1 }, // 0
+  { 1, 0, 0, 1, 1, 1, 1 }, // 1
+  { 0, 0, 1, 0, 0, 1, 0 }, // 2
+  { 0, 0, 0, 0, 1, 1, 0 }, // 3
+  { 1, 0, 0, 1, 1, 0, 0 }, // 4
+  { 0, 1, 0, 0, 1, 0, 0 }, // 5
+  { 0, 1, 0, 0, 0, 0, 0 }, // 6
+  { 0, 0, 0, 1, 1, 1, 1 }, // 7
+  { 0, 0, 0, 0, 0, 0, 0 }, // 8
+  { 0, 0, 0, 1, 1, 0, 0 } // 9
 };
 
 // Setup Toggle/Counter Variables
-int toggleArray[] = {0,35,25,22,18,15,12,10,6}; // Dart clip sizes (Use {0,99,45,40} For Khaos)
-int toggleCount = (sizeof(toggleArray)/sizeof(int))-1; // Find size of array
+int toggleArray[] = {0, 35, 25, 22, 18, 15, 12, 10, 6}; // Dart clip sizes (Use {0,99,45,40} For Khaos)
+int toggleCount = (sizeof(toggleArray) / sizeof(int)) - 1; // Find size of array
 int togglePosition = toggleCount; // Start at max capacity
 int count = toggleArray[toggleCount];  // Set intial count to lowest capacity
 int firstDigit, secondDigit;
@@ -74,166 +74,165 @@ void setup() {
   pinMode(pnp2, OUTPUT);
 
   // Setup LED pins
-  pinMode(A, OUTPUT);   
+  pinMode(A, OUTPUT);
   pinMode(B, OUTPUT);
   pinMode(C, OUTPUT);
   pinMode(D, OUTPUT);
   pinMode(E, OUTPUT);
   pinMode(F, OUTPUT);
   pinMode(G, OUTPUT);
-  
+
   // Set Initial Count
   changeNumber(count);
 
   // Uncomment for testing
-  // Serial.begin(9600); 
-}               
+  // Serial.begin(9600);
+}
 
-void loop(){
+void loop() {
   
   // Display Digits    
-    showDigits();
+  showDigits();
 
   // Monitor IR Beam
   //----------------------------------------------------//
 
-    // Read the analog in value
-    int sensorValue = analogRead(irSensorPin); 
+  // Read the analog in value
+  int sensorValue = analogRead(irSensorPin);
 
-    // Map it to the range of the analog output
-    int outputValue = map(sensorValue, 0, 1023, 0, 10);  
-    
-    // Check to see if dart has fired
-    if (outputValue > fireValue)
+  // Map it to the range of the analog output
+  int outputValue = map(sensorValue, 0, 1023, 0, 10);
+
+  // Check to see if dart has fired
+  if (outputValue > fireValue)
+  {
+    if (hasCleared == true) // If barrel is clear and beam is broken then countdown
     {
-      if (hasCleared == true) // If barrel is clear and beam is broken then countdown 
-      {
 
-        if (toggleArray[togglePosition] == 0) { 
+      if (toggleArray[togglePosition] == 0) {
 
-          // If OO has been selected, Count Up
-          changeNumber(++count);
-          hasCleared = false;
+        // If OO has been selected, Count Up
+        changeNumber(++count);
+        hasCleared = false;
 
-          // Check if count has finished, Auto-Reset
-          if (count == 99) {
-            _autoReset(); // Reset Count
-          }
-          
-        } else {
-
-          // Count Down
-          changeNumber(--count);
-          hasCleared = false;
-  
-          // Check if count has finished, Auto-Reset
-          if (count == 0) {
-            _autoReset(); // Reset Count
-          }
+        // Check if count has finished, Auto-Reset
+        if (count == 99) {
+          _autoReset(); // Reset Count
         }
 
-        // Print the results to the serial monitor for testing
-        // Serial.print("\t output = ");      
-        // Serial.println(outputValue);
+      } else {
+
+        // Count Down
+        changeNumber(--count);
+        hasCleared = false;
+
+        // Check if count has finished, Auto-Reset
+        if (count == 0) {
+          _autoReset(); // Reset Count
+        }
       }
-    }
 
-    // Check to see if dart has cleared
-    if (outputValue <= idleValue)
-    {
-      hasCleared = true;
+      // Print the results to the serial monitor for testing
+      // Serial.print("\t output = ");
+      // Serial.println(outputValue);
     }
+  }
 
-    
+  // Check to see if dart has cleared
+  if (outputValue <= idleValue)
+  {
+    hasCleared = true;
+  }
+
+
   // Monitor Toggle Button
   //----------------------------------------------------//
-  
-    // Check if the togglebutton is pressed.
-    if (toggleBtn.uniquePress()) {       
-        
-      // Toggle the display
-      if (togglePosition == 0) {
-        togglePosition = toggleCount; //Reset to max.
-      } else {
-        togglePosition--; //Deincrement capacity one step 
-      } 
-      
-      count = toggleArray[togglePosition];
-      changeNumber(count); //Send to display      
+
+  // Check if the togglebutton is pressed.
+  if (toggleBtn.uniquePress()) {
+
+    // Toggle the display
+    if (togglePosition == 0) {
+      togglePosition = toggleCount; //Reset to max.
+    } else {
+      togglePosition--; //Deincrement capacity one step
     }
-  
+
+    count = toggleArray[togglePosition];
+    changeNumber(count); //Send to display
+  }
+
   // Monitor Reset Button
   //----------------------------------------------------//
-  
-    // Check if resetbutton is pressed.
-    if (resetBtn.uniquePress()) {      
-      count = toggleArray[togglePosition]; // Reset count
-      changeNumber(count); //Send to display  
-    }
-  
+
+  // Check if resetbutton is pressed.
+  if (resetBtn.uniquePress()) {
+    count = toggleArray[togglePosition]; // Reset count
+    changeNumber(count); //Send to display
+  }
+
 }
 
 // Update display count
-//----------------------------------------------------//  
+//----------------------------------------------------//
 void changeNumber(int displayCount) {
 
   if ( (displayCount < 100) && (displayCount > 9) ) {
     firstDigit = displayCount / 10; // Find the first digit
-    secondDigit = displayCount % 10; 
+    secondDigit = displayCount % 10;
   }
 
   else if ( (displayCount < 10) && (displayCount > 0) ) {
     firstDigit = 0; // Set the first digit to 0
     secondDigit = displayCount;
   }
-  
+
   else if ( displayCount == 0) {
     firstDigit = 0; // Set the first digit to 0
     secondDigit = 0; // Set the second digit to 0
   }
-
 }
 
-// 7 Segment LED display toggle
-//----------------------------------------------------//  
+// 7 Segment LED multiplex display
+//----------------------------------------------------//
 void showDigits() {
-  _clearDisplay();
-  digitalWrite(pnp2, HIGH);
-  digitalWrite(pnp1, LOW);
-  _displayNumber(firstDigit);
-  delay(5);
-  
-  _clearDisplay();
-  digitalWrite(pnp1, HIGH);
-  digitalWrite(pnp2, LOW);
-  _displayNumber(secondDigit);
-  delay(5);
+  digitalWrite(pnp1, LOW);      // Turn on the first digit
+  digitalWrite(pnp2, HIGH);     // Turn off the second digit
+  _displayNumber(firstDigit);   // Display first digit
+
+  digitalWrite(pnp1, HIGH);     // Turn off the first digit
+  digitalWrite(pnp2, LOW);      // Turn on the second digit
+  _displayNumber(secondDigit);  // Display the second digit
 }
 
 // Given a number, turns on those segments
-//----------------------------------------------------//  
+//----------------------------------------------------//
 void _displayNumber(byte digit) {
+  
   for (byte i = 0; i < 7; ++i) {
-    digitalWrite(pinArray[i], segmentDigits[digit][i]);
+    digitalWrite(pinArray[i], segmentDigits[digit][i]); // Find the digit and turn on its segments
   }
+  
+  delay(6);           // Delay for 60ms
+   _clearDisplay();   // Clear the display
 }
 
 // Clear all all register pins
-//----------------------------------------------------//  
+//----------------------------------------------------//
 void _clearDisplay() {
   for (byte i = 0; i < 7; ++i) {
-    digitalWrite(pinArray[i], 1);
+    digitalWrite(pinArray[i], 1);   // Set all segments to off
   }
-} 
+}
 
-// Blink display and then auto-reset     
-//----------------------------------------------------//  
+// Blink display and then auto-reset
+//----------------------------------------------------//
 void _autoReset() {
-  
+
   // Blink display
   _clearDisplay();
   delay(500);
-  
-  count = toggleArray[togglePosition]; // Reset count  
+
+  count = toggleArray[togglePosition]; // Reset count
   changeNumber(count); //Send to display
 }
