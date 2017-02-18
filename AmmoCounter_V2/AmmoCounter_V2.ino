@@ -29,10 +29,11 @@ const byte E = 4;          // Set E to Pin 4
 const byte F = 5;          // Set F to Pin 5
 const byte G = 6;          // Set G to Pin 6
 
-int pinArray[7] = {A, B, C, D, E, F, G}; // Setup array of pins
+int pinArray[7] = {A,B,C,D,E,F,G}; // Setup array of pins
 
-const byte pnp1 = 13;  // PNP Transisitor Base Pin 13
-const byte pnp2 = 2;   // PNP Transisitor Base Pin 12
+const byte pnp1 = 13;   // PNP Transisitor Base Pin 13
+const byte pnp2 = 2;    // PNP Transisitor Base Pin 12
+boolean ledToggle = 0;    // Toggle varible for LEDs
 
 // Setup array of digits
 const byte segmentDigits[10][7] = {
@@ -85,15 +86,41 @@ void setup() {
   // Set Initial Count
   changeNumber(count);
 
-  // Uncomment for testing
-  // Serial.begin(9600);
+  // Setup Timer2 Interrupt
+  TCCR2A = 0;       // Set TCCR2A register to 0
+  TCCR2B = 0;       // Set TCCR2B register to 0
+  TCNT2  = 0;       // Initialize counter to 0
+  OCR2A = 255;      // Set compare match register
+  TCCR2A |= (1 << WGM21);   // Turn on CTC mode
+  TCCR2B |= (1 << CS21);    // Set CS21 bit for 8 prescaler
+  TIMSK2 |= (1 << OCIE2A);  // Enable timer compare interrupt
+
+  // Serial.begin(9600);    // Uncomment for testing
 }
 
-void loop() {
-
+// 7 Segment LED multiplex display interrupt
+//----------------------------------------------------//
+ISR(TIMER2_COMPA_vect) {
+  
   // Display Digits
-  showDigits();
+  if (ledToggle){
+    digitalWrite(pnp2, HIGH);     // Turn off the second digit 
+    _displayNumber(firstDigit);   // Send the first digit
+    digitalWrite(pnp1, LOW);      // Turn on the first digit
+    
+  } else {
+    digitalWrite(pnp1, HIGH);     // Turn off the first digit
+    _displayNumber(secondDigit);  // Send the second digit
+    digitalWrite(pnp2, LOW);      // Turn on the second digit 
+  }
 
+  // Toggle Display
+  ledToggle ^= 1;
+  
+} 
+
+void loop() {
+  
   // Monitor IR Beam
   //----------------------------------------------------//
 
@@ -193,20 +220,6 @@ void changeNumber(int displayCount) {
   }
 }
 
-// 7 Segment LED multiplex display
-//----------------------------------------------------//
-void showDigits() {
-  _displayNumber(firstDigit);   // Send the first digit
-  digitalWrite(pnp1, LOW);      // Turn on the first digit
-  delay(3);                     // Delay for 3ms
-  digitalWrite(pnp1, HIGH);     // Turn off the first digit
-
-  _displayNumber(secondDigit);  // Send the second digit
-  digitalWrite(pnp2, LOW);      // Turn on the second digit
-  delay(3);                     // Delay for 3ms
-  digitalWrite(pnp2, HIGH);     // Turn on the second digit  
-}
-
 // Given a number, turns on those segments
 //----------------------------------------------------//
 void _displayNumber(byte digit) {
@@ -233,7 +246,7 @@ void _autoReset() {
 
   // Blink display
   _clearDisplay();
-  delay(500);
+  // delay(500);
 
   count = toggleArray[togglePosition];  // Reset count
   changeNumber(count);                  //Send to display
