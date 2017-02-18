@@ -1,5 +1,5 @@
 // AmmoCounter V2 - www.ammocounter.com
-// Updated 2/16/2017
+// Updated 2/18/2017
 // Created by: Nathaniel Deal
 
 // Include Libraries
@@ -33,7 +33,8 @@ int pinArray[7] = {A,B,C,D,E,F,G}; // Setup array of pins
 
 const byte pnp1 = 13;   // PNP Transisitor Base Pin 13
 const byte pnp2 = 2;    // PNP Transisitor Base Pin 12
-boolean ledToggle = 0;    // Toggle varible for LEDs
+boolean ledToggle = 0;  // Toggle varible for LEDs
+boolean autoReset = 0;  // Toggle varible for Auto Reset
 
 // Setup array of digits
 const byte segmentDigits[10][7] = {
@@ -101,6 +102,12 @@ void setup() {
 // 7 Segment LED multiplex display interrupt
 //----------------------------------------------------//
 ISR(TIMER2_COMPA_vect) {
+
+  // Check if count has finished and clear display
+  if (autoReset) {
+    _clearDisplay();              // Turn display off
+    return;
+  }
   
   // Display Digits
   if (ledToggle){
@@ -115,8 +122,7 @@ ISR(TIMER2_COMPA_vect) {
   }
 
   // Toggle Display
-  ledToggle ^= 1;
-  
+  ledToggle ^= 1;  
 } 
 
 void loop() {
@@ -141,7 +147,7 @@ void loop() {
         // If OO has been selected, Count Up
         changeNumber(++count);
         hasCleared = false;
-
+        
         // Check if count has finished, Auto-Reset
         if (count == 99) {
           _autoReset(); // Reset Count
@@ -157,6 +163,7 @@ void loop() {
         if (count == 0) {
           _autoReset(); // Reset Count
         }
+
       }
 
       // Print the results to the serial monitor for testing
@@ -245,8 +252,10 @@ void _clearDisplay() {
 void _autoReset() {
 
   // Blink display
-  _clearDisplay();
-  // delay(500);
+  for (byte i = 0; i < 4; ++i) {
+    autoReset ^= 1;
+    delay(200);
+  }
 
   count = toggleArray[togglePosition];  // Reset count
   changeNumber(count);                  //Send to display
