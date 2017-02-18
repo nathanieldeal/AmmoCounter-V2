@@ -90,8 +90,8 @@ void setup() {
 }
 
 void loop() {
-  
-  // Display Digits    
+
+  // Display Digits
   showDigits();
 
   // Monitor IR Beam
@@ -153,13 +153,13 @@ void loop() {
 
     // Toggle the display
     if (togglePosition == 0) {
-      togglePosition = toggleCount; //Reset to max.
+      togglePosition = toggleCount;   //Reset to max.
     } else {
-      togglePosition--; //Deincrement capacity one step
+      togglePosition--;               //Deincrement capacity one step
     }
 
     count = toggleArray[togglePosition];
-    changeNumber(count); //Send to display
+    changeNumber(count);              //Send to display
   }
 
   // Monitor Reset Button
@@ -168,7 +168,7 @@ void loop() {
   // Check if resetbutton is pressed.
   if (resetBtn.uniquePress()) {
     count = toggleArray[togglePosition]; // Reset count
-    changeNumber(count); //Send to display
+    changeNumber(count);                 //Send to display
   }
 
 }
@@ -178,50 +178,52 @@ void loop() {
 void changeNumber(int displayCount) {
 
   if ( (displayCount < 100) && (displayCount > 9) ) {
-    firstDigit = displayCount / 10; // Find the first digit
-    secondDigit = displayCount % 10;
+    firstDigit = displayCount / 10;   // Find the first digit
+    secondDigit = displayCount % 10;  // Find the second digit
   }
 
   else if ( (displayCount < 10) && (displayCount > 0) ) {
-    firstDigit = 0; // Set the first digit to 0
+    firstDigit = 0;                   // Set the first digit to 0
     secondDigit = displayCount;
   }
 
   else if ( displayCount == 0) {
-    firstDigit = 0; // Set the first digit to 0
-    secondDigit = 0; // Set the second digit to 0
+    firstDigit = 0;                   // Set the first digit to 0
+    secondDigit = 0;                  // Set the second digit to 0
   }
 }
 
 // 7 Segment LED multiplex display
 //----------------------------------------------------//
 void showDigits() {
+  _displayNumber(firstDigit);   // Send the first digit
   digitalWrite(pnp1, LOW);      // Turn on the first digit
-  digitalWrite(pnp2, HIGH);     // Turn off the second digit
-  _displayNumber(firstDigit);   // Display first digit
-
+  delay(3);                     // Delay for 3ms
   digitalWrite(pnp1, HIGH);     // Turn off the first digit
+
+  _displayNumber(secondDigit);  // Send the second digit
   digitalWrite(pnp2, LOW);      // Turn on the second digit
-  _displayNumber(secondDigit);  // Display the second digit
+  delay(3);                     // Delay for 3ms
+  digitalWrite(pnp2, HIGH);     // Turn on the second digit  
 }
 
 // Given a number, turns on those segments
 //----------------------------------------------------//
 void _displayNumber(byte digit) {
   
+  // Find the digit and turn on its segments
   for (byte i = 0; i < 7; ++i) {
-    digitalWrite(pinArray[i], segmentDigits[digit][i]); // Find the digit and turn on its segments
+    digitalWrite(pinArray[i], segmentDigits[digit][i]); 
   }
-  
-  delay(6);           // Delay for 60ms
-   _clearDisplay();   // Clear the display
 }
 
-// Clear all all register pins
+// Clear all register pins
 //----------------------------------------------------//
 void _clearDisplay() {
+  
+  // Set all segments to off
   for (byte i = 0; i < 7; ++i) {
-    digitalWrite(pinArray[i], 1);   // Set all segments to off
+    digitalWrite(pinArray[i], 1);
   }
 }
 
@@ -233,6 +235,6 @@ void _autoReset() {
   _clearDisplay();
   delay(500);
 
-  count = toggleArray[togglePosition]; // Reset count
-  changeNumber(count); //Send to display
+  count = toggleArray[togglePosition];  // Reset count
+  changeNumber(count);                  //Send to display
 }
