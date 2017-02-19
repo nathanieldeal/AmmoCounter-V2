@@ -1,7 +1,22 @@
-# AmmoCounter
+# AmmoCounter V2
 Repo for AmmoCounter V2 Arduino code
 
-This [Nerf Dart Counter](http://ammocounter.com/ "Nerf Dart Counter") is now available for sale!
+Learn more at http://ammocounter.com
+
+### 2 Digit 7 Segment Common Anode 10 Pin Out
+
+          A  B Ca1 Ca2 F
+          |  |  |   |  |
+     ---------    ---------
+     |   A   |    |   A   |
+    F|       |B  F|       |B
+     |---G---|    |---G---|
+    E|       |C  E|       |C
+     |   D   |    |   D   |
+     ---------    ---------
+          |  |  |  |  |
+          C  Dp E  D  G
+
 
 ### How to install:
 Download the latest code [here](https://github.com/nathanieldeal/AmmoCounter-V2/archive/master.zip) and unzip.
