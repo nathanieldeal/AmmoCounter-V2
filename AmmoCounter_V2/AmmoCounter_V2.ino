@@ -1,5 +1,5 @@
 // AmmoCounter V2 - www.ammocounter.com
-// Updated 2/18/2017
+// Updated 3/1/2017
 // Created by: Nathaniel Deal
 
 // Include Libraries
@@ -87,21 +87,23 @@ void setup() {
   // Set Initial Count
   changeNumber(count);
 
-  // Setup Timer2 Interrupt
-  TCCR2A = 0;       // Set TCCR2A register to 0
-  TCCR2B = 0;       // Set TCCR2B register to 0
-  TCNT2  = 0;       // Initialize counter to 0
-  OCR2A = 255;      // Set compare match register
-  TCCR2A |= (1 << WGM21);   // Turn on CTC mode
-  TCCR2B |= (1 << CS21);    // Set CS21 bit for 8 prescaler
-  TIMSK2 |= (1 << OCIE2A);  // Enable timer compare interrupt
+  // Setup Timer1 Interrupt for 300Hz
+  cli();            // Stop interrupts
+  TCCR1A = 0;       // Set TCCR2A register to 0
+  TCCR1B = 0;       // Set TCCR2B register to 0
+  TCNT1  = 0;       // Initialize counter to 0
+  OCR1A = 53332;    // 16000000 / (8 * 300) - 1
+  TCCR1B |= (1 << WGM12);   // Turn on CTC mode
+  TCCR1B |= (0 << CS12) | (0 << CS11) | (1 << CS10);   // Set CS21 bit for 8 prescaler
+  TIMSK1 |= (1 << OCIE2A);  // Enable timer compare interrupt
+  sei();            // Allow interrupts  
 
   // Serial.begin(9600);    // Uncomment for testing
 }
 
 // 7 Segment LED multiplex display interrupt
 //----------------------------------------------------//
-ISR(TIMER2_COMPA_vect) {
+ISR(TIMER1_COMPA_vect) {
 
   // Check if count has finished and clear display
   if (autoReset) {
