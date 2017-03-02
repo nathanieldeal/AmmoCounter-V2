@@ -31,10 +31,11 @@ const byte G = 6;          // Set G to Pin 6
 
 int pinArray[7] = {A,B,C,D,E,F,G}; // Setup array of pins
 
-const byte pnp1 = 13;   // PNP Transisitor Base Pin 13
-const byte pnp2 = 2;    // PNP Transisitor Base Pin 12
-boolean ledToggle = 0;  // Toggle varible for LEDs
-boolean autoReset = 0;  // Toggle varible for Auto Reset
+const byte pnp1 = 13;       // PNP Transisitor Base Pin 13
+const byte pnp2 = 2;        // PNP Transisitor Base Pin 12
+boolean ledToggle = 0;      // Toggle varible for LEDs
+boolean autoReset = 0;      // Toggle varible for Auto Reset
+byte segCount = 0;          // Variable for segment 
 
 // Setup array of digits
 const byte segmentDigits[10][7] = {
@@ -47,7 +48,7 @@ const byte segmentDigits[10][7] = {
   { 0, 1, 0, 0, 0, 0, 0 }, // 6
   { 0, 0, 0, 1, 1, 1, 1 }, // 7
   { 0, 0, 0, 0, 0, 0, 0 }, // 8
-  { 0, 0, 0, 1, 1, 0, 0 } // 9
+  { 0, 0, 0, 1, 1, 0, 0 }  // 9
 };
 
 // Setup Toggle/Counter Variables
@@ -233,9 +234,25 @@ void changeNumber(int displayCount) {
 //----------------------------------------------------//
 void _displayNumber(byte digit) {
   
+  // Fix brightness on low segmented digits
+  segCount = 0;           // Reset SegCount
+  _segmentCount(digit);   // Set new SegCount
+  OCR1A = (segCount <= 3) ? 32556 : 53332;  // Change frequency
+  
   // Find the digit and turn on its segments
   for (byte i = 0; i < 7; ++i) {
     digitalWrite(pinArray[i], segmentDigits[digit][i]); 
+  }
+}
+
+// Count and return the number of segments in a digit
+//----------------------------------------------------//
+void _segmentCount(byte digit) {
+  
+  for (byte i=0; i<7; i++) {
+     if (segmentDigits[digit][i] == 0) {
+       segCount++;
+     }
   }
 }
 
