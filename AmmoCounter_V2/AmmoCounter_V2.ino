@@ -1,5 +1,5 @@
 // AmmoCounter V2 - www.ammocounter.com
-// Updated 3/1/2017
+// Updated 5/30/2017
 // Created by: Nathaniel Deal
 
 // Include Libraries
@@ -60,8 +60,8 @@ int firstDigit, secondDigit;
 
 // IR Beam Setup
 int irSensorPin = A2;
-int idleValue = 1;
-int fireValue = 3;
+int idleValue = 4;
+int fireValue = 5;
 boolean hasCleared = false;  // Check for cleared dart
 
 // Clip/Toggle/Reset Setup
@@ -137,7 +137,7 @@ void loop() {
   int sensorValue = analogRead(irSensorPin);
 
   // Map it to the range of the analog output
-  int outputValue = map(sensorValue, 0, 1023, 0, 10);
+  int outputValue = map(sensorValue, 0, 1023, 0, 100);
 
   // Check to see if dart has fired
   if (outputValue > fireValue)
@@ -168,19 +168,17 @@ void loop() {
         }
 
       }
-
-      // Print the results to the serial monitor for testing
-      // Serial.print("\t output = ");
-      // Serial.println(outputValue);
     }
   }
 
   // Check to see if dart has cleared
-  if (outputValue <= idleValue)
-  {
+  if (outputValue <= idleValue) {
     hasCleared = true;
   }
 
+  // Print the results to the serial monitor for testing
+  // Serial.print("\t output = ");
+  // Serial.println(outputValue);
 
   // Monitor Toggle Button
   //----------------------------------------------------//
